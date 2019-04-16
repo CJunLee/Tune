@@ -11,7 +11,7 @@ from keras.datasets import cifar10
 from sklearn.model_selection import train_test_split
 import argparse
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--load", help="if load trial or not",action='store_true')
@@ -61,17 +61,28 @@ model.compile(optimizer=sgd,
 
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.1, random_state = 42)
 
+def lr_schedule(epoch):
+	lr = 0.1
+	if epoch>150:
+		lr = 0.01
+	if epoch>250:
+		lr = 0.001
+	return lr
+
+
+lr_sched = keras.callbacks.LearningRateScheduler(lr_schedule, verbose=1)
+tboard = keras.callbacks.TensorBoard(log_dir='./baselines/no_lr_sched_baseline')
 if args.load:
 	model.load_weights('./checkpoints/my_checkpoint_tmp_best_0')
-for i in range(30):
-	model.fit(x_train, y_train, epochs=10, batch_size=64)
-	if i == 15:
+for i in range(1):
+	model.fit(x_train, y_train, epochs=300, validation_data=(x_val,y_val), batch_size=64, callbacks=[lr_sched,tboard])
+	'''if i == 15:
 		sgd = keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True)
 		model.compile(optimizer=sgd,loss='categorical_crossentropy', metrics=['accuracy'])
 	elif i ==25:
 		sgd = keras.optimizers.SGD(lr=0.001, momentum=0.9, nesterov=True)
 		model.compile(optimizer=sgd,loss='categorical_crossentropy', metrics=['accuracy'])
-		
+	'''	
 	weights_path = './checkpoints/my_checkpoint_tmp_best_' + str(i)
 	model.save_weights(weights_path)
 #model.evaluate(x_test, y_test)

@@ -20,7 +20,6 @@ parser.add_argument("--load", help="if load trial or not",action='store_true')
 args = parser.parse_args()
 
 
-
 class DenseCifar10Model(tune.Trainable):
 	def _read_data(self):
 		(x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -115,7 +114,8 @@ spec={
 	"num_samples": 1,
 	"config": config
 }
-trials = tune.run(DenseCifar10Model, checkpoint_freq=5, name="my_pbt_Dense40_cifar10_0", scheduler=pbt, **spec)#, resume = True)
+#trials = tune.run(DenseCifar10Model, checkpoint_freq=5, name="my_pbt_Dense40_cifar10_0", scheduler=pbt, **spec)#, resume = True)
+trials = tune.run(DenseCifar10Model, checkpoint_freq=5, name="my_pbt_Dense40_cifar10_0", scheduler=pbt, **spec, resume = True)
 #trials = tune.run(DenseCifar10Model, name="my_pbt_cifar10", scheduler=pbt, **spec)
 print(trials)
 
